@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname.startsWith("/login") || pathname.startsWith("/auth")) {
+  if (pathname === "/" || pathname.startsWith("/auth")) {
     return NextResponse.next();
   }
 
@@ -42,7 +42,7 @@ export async function middleware(req: NextRequest) {
     .map((e) => e.trim().toLowerCase());
 
   if (!user?.email || !allowed.includes(user.email.toLowerCase())) {
-    const loginUrl = new URL("/login", req.url);
+    const loginUrl = new URL("/", req.url);
     return NextResponse.redirect(loginUrl);
   }
 
