@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Truck, Mail } from "lucide-react";
+import { Loader2, Truck, Lock } from "lucide-react";
 
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -19,47 +21,19 @@ export function LoginForm() {
     setError("");
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: `https://transfer-trucks-fleet.vercel.app/auth/callback`,
-      },
+      password,
     });
 
     if (error) {
       setError(error.message);
       setLoading(false);
     } else {
-      setSent(true);
-      setLoading(false);
+      router.push("/dashboard");
+      router.refresh();
     }
   };
-
-  if (sent) {
-    return (
-      <Card className="border-border bg-card">
-        <CardContent className="pt-6 text-center space-y-4">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand/10">
-            <Mail className="h-6 w-6 text-brand" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold">Check your email</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              We sent a magic link to <strong>{email}</strong>. Click the link
-              to sign in.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setSent(false)}
-          >
-            Use a different email
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card className="border-border bg-card">
@@ -69,7 +43,7 @@ export function LoginForm() {
         </div>
         <CardTitle className="text-xl">Welcome back</CardTitle>
         <p className="mt-1 text-sm text-muted-foreground">
-          Enter your email to sign in to your fleet dashboard
+          Sign in to your fleet dashboard
         </p>
       </CardHeader>
       <CardContent>
@@ -77,9 +51,19 @@ export function LoginForm() {
           <div>
             <Input
               type="email"
-              placeholder="carlos@transfertruckscorp.com"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+              className="bg-background"
+            />
+          </div>
+          <div>
+            <Input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="bg-background"
             />
@@ -91,10 +75,13 @@ export function LoginForm() {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending link...
+                Signing in...
               </>
             ) : (
-              "Send magic link"
+              <>
+                <Lock className="mr-2 h-4 w-4" />
+                Sign in
+              </>
             )}
           </Button>
         </form>
