@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTrucks } from "@/lib/db/queries";
 import { TruckStatusBadge } from "@/components/fleet/truck-status-badge";
-import { formatCurrency, formatShortDate } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus } from "lucide-react";
 
 export default async function FleetPage() {
   const trucks = await getTrucks();

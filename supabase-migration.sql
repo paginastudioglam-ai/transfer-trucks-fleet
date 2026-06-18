@@ -123,11 +123,21 @@ ALTER TABLE rentals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE maintenance_records ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Authenticated full access" ON trucks FOR ALL TO authenticated USING (true);
-CREATE POLICY "Authenticated full access" ON clients FOR ALL TO authenticated USING (true);
-CREATE POLICY "Authenticated full access" ON rentals FOR ALL TO authenticated USING (true);
-CREATE POLICY "Authenticated full access" ON payments FOR ALL TO authenticated USING (true);
-CREATE POLICY "Authenticated full access" ON maintenance_records FOR ALL TO authenticated USING (true);
+CREATE POLICY "Admin full access" ON trucks FOR ALL TO authenticated
+  USING (auth.email() = 'ivanimac4826@gmail.com')
+  WITH CHECK (auth.email() = 'ivanimac4826@gmail.com');
+CREATE POLICY "Admin full access" ON clients FOR ALL TO authenticated
+  USING (auth.email() = 'ivanimac4826@gmail.com')
+  WITH CHECK (auth.email() = 'ivanimac4826@gmail.com');
+CREATE POLICY "Admin full access" ON rentals FOR ALL TO authenticated
+  USING (auth.email() = 'ivanimac4826@gmail.com')
+  WITH CHECK (auth.email() = 'ivanimac4826@gmail.com');
+CREATE POLICY "Admin full access" ON payments FOR ALL TO authenticated
+  USING (auth.email() = 'ivanimac4826@gmail.com')
+  WITH CHECK (auth.email() = 'ivanimac4826@gmail.com');
+CREATE POLICY "Admin full access" ON maintenance_records FOR ALL TO authenticated
+  USING (auth.email() = 'ivanimac4826@gmail.com')
+  WITH CHECK (auth.email() = 'ivanimac4826@gmail.com');
 
 -- Seed data: camiones de la flota (basado en la info de la web)
 INSERT INTO trucks (unit_number, make, model, year, mileage, status, weekly_rate, deposit_amount, location, notes) VALUES

@@ -8,10 +8,10 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Only allow static assets through without auth
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.includes(".")
+    /\.(svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?)$/i.test(pathname)
   ) {
     return NextResponse.next();
   }

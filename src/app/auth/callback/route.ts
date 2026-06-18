@@ -4,7 +4,11 @@ import { createServerClient } from "@supabase/ssr";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  const rawNext = searchParams.get("next") ?? "/dashboard";
+  // Prevent open redirect: only allow paths starting with /
+  const next = rawNext.startsWith("/") && !rawNext.includes("//")
+    ? rawNext
+    : "/dashboard";
 
   if (code) {
     const supabase = createServerClient(
@@ -27,5 +31,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_error`);
+  return NextResponse.redirect(`${origin}/?error=auth_callback_error`);
 }
