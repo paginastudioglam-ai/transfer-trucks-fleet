@@ -16,9 +16,9 @@ export default async function PaymentsPage() {
   const payments = await getPayments();
 
   const today = new Date().toISOString().split("T")[0];
-  const pending = payments.filter((p) => p.status === "pending");
-  const overdue = pending.filter((p) => p.due_date < today);
-  const paid = payments.filter((p) => p.status === "paid");
+  const pending = payments.filter((p) => p.status === "PENDING");
+  const overdue = pending.filter((p) => p.dueDate < today);
+  const paid = payments.filter((p) => p.status === "PAID");
 
   return (
     <div className="space-y-6">
@@ -57,41 +57,41 @@ export default async function PaymentsPage() {
               <TableBody>
                 {payments.map((p) => {
                   const isOverdue =
-                    p.status === "pending" && p.due_date < today;
+                    p.status === "PENDING" && p.dueDate < today;
                   return (
                     <TableRow key={p.id}>
                       <TableCell className="font-medium">
                         <Link
-                          href={`/dashboard/rentals/${p.rental?.id}`}
+                          href={`/dashboard/rentals/${p.rentalId}`}
                           className="text-brand hover:underline"
                         >
-                          {p.rental?.contract_number}
+                          {p.rentalId ? `Contrato ${p.rentalId.slice(0,8)}` : "—"}
                         </Link>
                       </TableCell>
                       <TableCell>
-                        {p.rental?.client?.full_name}
+                        {"—"}
                       </TableCell>
-                      <TableCell>#{p.week_number}</TableCell>
+                      <TableCell>#{p.weekNumber}</TableCell>
                       <TableCell>{formatCurrency(p.amount)}</TableCell>
                       <TableCell>
-                        {formatDate(p.due_date)}
+                        {formatDate(p.dueDate)}
                         {isOverdue && (
                           <span className="ml-2 text-xs text-red-400">
-                            ({daysAgo(p.due_date)}d)
+                            ({daysAgo(p.dueDate)}d)
                           </span>
                         )}
                       </TableCell>
                       <TableCell>
                         <Badge
                           variant={
-                            p.status === "paid"
+                            p.status === "PAID"
                               ? "success"
                               : isOverdue
                                 ? "destructive"
                                 : "warning"
                           }
                         >
-                          {p.status === "paid"
+                          {p.status === "PAID"
                             ? "Pagado"
                             : isOverdue
                               ? "Atrasado"
@@ -102,7 +102,7 @@ export default async function PaymentsPage() {
                         {p.method ?? "—"}
                       </TableCell>
                       <TableCell>
-                        {p.paid_date ? formatDate(p.paid_date) : "—"}
+                        {p.paidDate ? formatDate(p.paidDate) : "—"}
                       </TableCell>
                     </TableRow>
                   );

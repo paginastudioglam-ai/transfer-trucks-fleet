@@ -70,17 +70,17 @@ export default async function RentalsPage() {
               {rentals.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell className="font-medium">
-                    {r.contract_number}
+                    {r.contractNumber}
                   </TableCell>
-                  <TableCell>{r.client?.full_name}</TableCell>
-                  <TableCell>{r.truck?.unit_number}</TableCell>
-                  <TableCell>{formatDate(r.start_date)}</TableCell>
+                  <TableCell>{r.driverId ? `Driver ${r.driverId.slice(0,8)}` : "—"}</TableCell>
+                  <TableCell>{r.truckId ? `Truck ${r.truckId.slice(0,8)}` : "—"}</TableCell>
+                  <TableCell>{formatDate(r.startDate)}</TableCell>
                   <TableCell>
-                    {r.expected_end_date
-                      ? formatDate(r.expected_end_date)
+                    {r.expectedEndDate
+                      ? formatDate(r.expectedEndDate)
                       : "Abierto"}
                   </TableCell>
-                  <TableCell>{formatCurrency(r.weekly_rate)}</TableCell>
+                  <TableCell>{formatCurrency(r.weeklyRate)}</TableCell>
                   <TableCell>
                     <Badge variant={statusVariants[r.status] ?? "outline"}>
                       {statusLabels[r.status] ?? r.status}
