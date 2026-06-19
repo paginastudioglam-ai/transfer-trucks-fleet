@@ -20,7 +20,7 @@ const typeLabels: Record<string, string> = {
 };
 
 export default async function ClientsPage() {
-  const clients = await getClients();
+  const clients = await getDrivers();
 
   return (
     <div className="space-y-6">
@@ -54,28 +54,28 @@ export default async function ClientsPage() {
               {clients.map((client) => (
                 <TableRow key={client.id}>
                   <TableCell className="font-medium">
-                    {client.full_name}
+                    {client.firstName} {client.lastName}
                   </TableCell>
-                  <TableCell>{client.company_name || "—"}</TableCell>
+                  <TableCell>{client.companyName || "—"}</TableCell>
                   <TableCell>{client.phone}</TableCell>
                   <TableCell>
                     <Badge variant="outline">
-                      {typeLabels[client.client_type] ?? client.client_type}
+                      {typeLabels[client.driverType?.toLowerCase()] ?? client.driverType}
                     </Badge>
                   </TableCell>
-                  <TableCell>{client.total_rentals}</TableCell>
+                  <TableCell>{client.totalRentals}</TableCell>
                   <TableCell>
-                    {client.on_time_payment_rate != null ? (
+                    {client.onTimePaymentRate != null ? (
                       <Badge
                         variant={
-                          client.on_time_payment_rate >= 90
+                          client.onTimePaymentRate >= 90
                             ? "success"
-                            : client.on_time_payment_rate >= 70
+                            : client.onTimePaymentRate >= 70
                               ? "warning"
                               : "destructive"
                         }
                       >
-                        {client.on_time_payment_rate}%
+                        {client.onTimePaymentRate}%
                       </Badge>
                     ) : (
                       "—"
