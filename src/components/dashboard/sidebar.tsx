@@ -10,6 +10,7 @@ import {
   FileText,
   DollarSign,
   Wrench,
+  BarChart3,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
@@ -20,6 +21,7 @@ const links = [
   { href: "/dashboard/rentals", label: "Contratos", icon: FileText },
   { href: "/dashboard/payments", label: "Pagos", icon: DollarSign },
   { href: "/dashboard/maintenance", label: "Mantenimiento", icon: Wrench },
+  { href: "/dashboard/reports", label: "Reportes", icon: BarChart3 },
 ];
 
 export function Sidebar() {
