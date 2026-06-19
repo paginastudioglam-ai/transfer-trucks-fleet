@@ -33,11 +33,7 @@ const maintenanceLabels: Record<string, string> = {
 
 export default async function TruckDetailPage({ params }: TruckDetailPageProps) {
   const { id } = await params;
-  const [truck, rentals, maintenance] = await Promise.all([
-    getTruckById(id),
-    getTruckRentals(id),
-    getTruckMaintenance(id),
-  ]);
+  const truck = await getTruck(id);
 
   if (!truck) notFound();
 

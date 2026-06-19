@@ -48,10 +48,9 @@ const paymentDayLabels: Record<string, string> = {
 
 export default async function RentalDetailPage({ params }: RentalDetailPageProps) {
   const { id } = await params;
-  const [rental, payments] = await Promise.all([
-    getRentalById(id),
-    getRentalPayments(id),
-  ]);
+  const rentalData = await getRental(id);
+  const rental = rentalData;
+  const payments = rentalData.payments || [];
 
   if (!rental) notFound();
 
