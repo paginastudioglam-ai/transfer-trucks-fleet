@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getTruckById, getTruckRentals, getTruckMaintenance } from "@/lib/db/queries";
+import { getTruck } from "@/lib/api";
 import { TruckStatusBadge } from "@/components/fleet/truck-status-badge";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

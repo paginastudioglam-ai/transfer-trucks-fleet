@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getRentalById, getRentalPayments } from "@/lib/db/queries";
+import { getRental } from "@/lib/api";
 import { completeRental } from "@/lib/actions";
 import { formatCurrency, formatDate, daysAgo } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

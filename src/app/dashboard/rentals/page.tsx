@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getRentals } from "@/lib/db/queries";
+import { getRentals } from "@/lib/api";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

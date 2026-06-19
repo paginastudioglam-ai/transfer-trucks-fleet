@@ -19,9 +19,10 @@ const variants: Record<string, "success" | "default" | "warning" | "destructive"
 };
 
 export function TruckStatusBadge({ status }: TruckStatusBadgeProps) {
+  const key = status.toLowerCase();
   return (
-    <Badge variant={variants[status] ?? "outline"}>
-      {labels[status] ?? status}
+    <Badge variant={variants[key] ?? "outline"}>
+      {labels[key] ?? status}
     </Badge>
   );
 }

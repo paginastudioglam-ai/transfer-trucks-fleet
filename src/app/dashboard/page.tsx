@@ -1,13 +1,6 @@
 import { Truck, AlertTriangle, Clock, Wrench } from "lucide-react";
 import { StatCard } from "@/components/dashboard/stat-card";
-import {
-  getTruckStats,
-  getOverduePayments,
-  getOverdueCount,
-  getPendingRentals,
-  getUpcomingRenewals,
-  getUpcomingMaintenance,
-} from "@/lib/db/queries";
+import { getDashboard, getOverduePayments, getTrucks, getMaintenance } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -16,15 +9,18 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const [stats, overduePayments, overdueCount, pendingRentals, upcomingRenewals, upcomingMaintenance] =
-    await Promise.all([
-      getTruckStats(),
-      getOverduePayments(),
-      getOverdueCount(),
-      getPendingRentals(),
-      getUpcomingRenewals(),
-      getUpcomingMaintenance(),
-    ]);
+  const [dash, overduePayments, trucks, maintenance] = await Promise.all([
+    getDashboard(),
+    getOverduePayments(),
+    getTrucks(),
+    getMaintenance(),
+  ]);
+
+  const stats = dash.stats;
+  const today = new Date().toISOString().split("T")[0];
+  const upcomingMaintenance = maintenance.filter(
+    (m) => m.nextDueDate && m.nextDueDate > today && m.nextDueDate <= new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0]
+  );
 
   return (
     <div className="space-y-8">
@@ -55,7 +51,7 @@ export default async function DashboardPage() {
         />
         <StatCard
           label="Pagos atrasados"
-          value={overdueCount}
+          value={stats.overduePayments}
           icon={AlertTriangle}
           variant="danger"
         />
@@ -66,35 +62,12 @@ export default async function DashboardPage() {
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Contratos pendientes</CardTitle>
-            <Badge variant="secondary">{pendingRentals.length}</Badge>
+            <Badge variant="secondary">{dash.pendingRentals}</Badge>
           </CardHeader>
           <CardContent>
-            {pendingRentals.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                No hay contratos pendientes de aprobación
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {pendingRentals.map((r) => (
-                  <div
-                    key={r.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {r.client?.full_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {r.truck?.unit_number} · {formatCurrency(r.weekly_rate)}/semana
-                      </p>
-                    </div>
-                    <div className="ml-3 flex gap-2">
-                      <Link href={`/dashboard/rentals/${r.id}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>Revisar</Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <Link href="/dashboard/rentals" className={cn(buttonVariants({ variant: "outline" }))}>
+              Ver todos los contratos
+            </Link>
           </CardContent>
         </Card>
 
@@ -112,22 +85,15 @@ export default async function DashboardPage() {
             ) : (
               <div className="space-y-3">
                 {overduePayments.map((p) => (
-                  <div
-                    key={p.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
-                  >
+                  <div key={p.id} className="flex items-center justify-between rounded-lg border border-border p-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {p.rental?.client?.full_name}
-                      </p>
+                      <p className="truncate text-sm font-medium">{p.driverName}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatCurrency(p.amount)} · Semana {p.week_number} ·{" "}
-                        <span className="text-red-400">
-                          {daysAgo(p.due_date)} días atraso
-                        </span>
+                        {p.contractNumber} · {formatCurrency(p.amount)} · Semana {p.weekNumber} ·{" "}
+                        <span className="text-red-400">{daysAgo(p.dueDate)} días atraso</span>
                       </p>
                     </div>
-                    <Link href={`/dashboard/rentals/${p.rental?.id}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>Ver contrato</Link>
+                    <Link href={`/dashboard/rentals/${p.rentalId}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>Ver</Link>
                   </div>
                 ))}
               </div>
@@ -139,35 +105,12 @@ export default async function DashboardPage() {
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Próximas renovaciones</CardTitle>
-            <Badge variant="outline">{upcomingRenewals.length}</Badge>
+            <Badge variant="outline">{dash.upcomingRenewals}</Badge>
           </CardHeader>
           <CardContent>
-            {upcomingRenewals.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                Sin renovaciones en los próximos 30 días
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {upcomingRenewals.map((r) => (
-                  <div
-                    key={r.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {r.client?.full_name} · {r.truck?.unit_number}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Vence {formatDate(r.expected_end_date!)} ·{" "}
-                        <Clock className="inline h-3 w-3" />{" "}
-                        {daysUntil(r.expected_end_date!)} días
-                      </p>
-                    </div>
-                    <Link href={`/dashboard/rentals/${r.id}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>Ver</Link>
-                  </div>
-                ))}
-              </div>
-            )}
+            <Link href="/dashboard/rentals" className={cn(buttonVariants({ variant: "outline" }))}>
+              Ver contratos próximos a vencer
+            </Link>
           </CardContent>
         </Card>
 
@@ -179,23 +122,14 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             {upcomingMaintenance.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                Sin mantenimientos programados
-              </p>
+              <p className="py-6 text-center text-sm text-muted-foreground">Sin mantenimientos programados</p>
             ) : (
               <div className="space-y-3">
                 {upcomingMaintenance.map((m) => (
-                  <div
-                    key={m.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
-                  >
+                  <div key={m.id} className="flex items-center justify-between rounded-lg border border-border p-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {m.truck?.unit_number} — {m.type?.replace(/_/g, " ")}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Vence {formatDate(m.next_due_date!)}
-                      </p>
+                      <p className="truncate text-sm font-medium">{m.truckId} — {m.serviceType?.replace(/_/g, " ")}</p>
+                      <p className="text-xs text-muted-foreground">Vence {formatDate(m.nextDueDate)}</p>
                     </div>
                   </div>
                 ))}

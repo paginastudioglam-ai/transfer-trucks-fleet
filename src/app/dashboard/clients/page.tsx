@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getClients } from "@/lib/db/queries";
+import { getDrivers } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

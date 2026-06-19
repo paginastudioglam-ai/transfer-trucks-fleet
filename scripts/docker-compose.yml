@@ -1,0 +1,76 @@
+version: "3.8"
+name: twenty
+services:
+  server:
+    image: twentycrm/twenty:latest
+    container_name: twenty-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - twenty-local-data:/app/packages/twenty-server/storage
+    environment:
+      PG_DATABASE_URL: postgres://${PG_DATABASE_USER}:${PG_DATABASE_PASSWORD}@${PG_DATABASE_HOST}:${PG_DATABASE_PORT}/default
+      SERVER_URL: ${SERVER_URL}
+      REDIS_URL: ${REDIS_URL}
+      STORAGE_TYPE: ${STORAGE_TYPE}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      FALLBACK_ENCRYPTION_KEY: ${FALLBACK_ENCRYPTION_KEY}
+      APP_SECRET: ${APP_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    image: twentycrm/twenty:latest
+    container_name: twenty-worker
+    restart: unless-stopped
+    command: ["yarn", "worker:prod"]
+    environment:
+      PG_DATABASE_URL: postgres://${PG_DATABASE_USER}:${PG_DATABASE_PASSWORD}@${PG_DATABASE_HOST}:${PG_DATABASE_PORT}/default
+      SERVER_URL: ${SERVER_URL}
+      REDIS_URL: ${REDIS_URL}
+      STORAGE_TYPE: ${STORAGE_TYPE}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      FALLBACK_ENCRYPTION_KEY: ${FALLBACK_ENCRYPTION_KEY}
+      APP_SECRET: ${APP_SECRET}
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    container_name: twenty-db
+    restart: unless-stopped
+    volumes:
+      - twenty-db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${PG_DATABASE_USER}
+      POSTGRES_PASSWORD: ${PG_DATABASE_PASSWORD}
+      POSTGRES_DB: default
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_DATABASE_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: twenty-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory-policy noeviction
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  twenty-db-data:
+  twenty-local-data:

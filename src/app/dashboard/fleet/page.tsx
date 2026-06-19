@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTrucks } from "@/lib/db/queries";
+import { getTrucks } from "@/lib/api";
 import { TruckStatusBadge } from "@/components/fleet/truck-status-badge";
 import { formatCurrency } from "@/lib/format";
 import { buttonVariants } from "@/components/ui/button";
@@ -49,7 +49,7 @@ export default async function FleetPage() {
               {trucks.map((truck) => (
                 <TableRow key={truck.id}>
                   <TableCell className="font-medium">
-                    {truck.unit_number}
+                    {truck.unitNumber}
                   </TableCell>
                   <TableCell>
                     {truck.make} {truck.model}
@@ -61,7 +61,7 @@ export default async function FleetPage() {
                   <TableCell>
                     <TruckStatusBadge status={truck.status} />
                   </TableCell>
-                  <TableCell>{formatCurrency(truck.weekly_rate)}</TableCell>
+                  <TableCell>{formatCurrency(truck.weeklyRate)}</TableCell>
                   <TableCell className="text-right">
                     <Link href={`/dashboard/fleet/${truck.id}`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                       Detalle

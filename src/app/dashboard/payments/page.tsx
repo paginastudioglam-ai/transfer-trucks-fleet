@@ -1,4 +1,4 @@
-import { getPayments } from "@/lib/db/queries";
+import { getPayments } from "@/lib/api";
 import { formatCurrency, formatDate, daysAgo } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
