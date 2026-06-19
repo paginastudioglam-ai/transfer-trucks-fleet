@@ -12,10 +12,18 @@ interface Message {
 }
 
 const QUICK_ACTIONS = [
-  { label: "¿Camiones disponibles?", query: "¿Cuántos camiones hay disponibles?" },
-  { label: "¿Pagos atrasados?", query: "¿Quién tiene pagos atrasados?" },
-  { label: "¿Próximo mantenimiento?", query: "¿Qué mantenimientos vencen pronto?" },
-  { label: "¿Prospectos?", query: "¿Hay clientes sin alquilar?" },
+  { label: "Camiones disponibles", query: "¿Cuántos camiones hay disponibles?" },
+  { label: "Pagos atrasados", query: "¿Quién tiene pagos atrasados?" },
+  { label: "Crear contrato", query: "Crea un contrato nuevo" },
+  { label: "Mantenimiento", query: "¿Qué mantenimientos vencen pronto?" },
+  { label: "Prospectos", query: "¿Hay clientes sin alquilar?" },
+];
+
+const AGENT_BUTTONS = [
+  { label: "Op.", agent: "operations" },
+  { label: "Fin.", agent: "finance" },
+  { label: "Ventas", agent: "sales" },
+  { label: "Mant.", agent: "maintenance" },
 ];
 
 export function ChatWidget() {
@@ -35,7 +43,7 @@ export function ChatWidget() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const send = async (text: string) => {
+  const send = async (text: string, agent?: string) => {
     if (!text.trim() || loading) return;
     const msg = text.trim();
     setMessages((prev) => [...prev, { role: "user", content: msg }]);
@@ -43,10 +51,12 @@ export function ChatWidget() {
     setLoading(true);
 
     try {
+      const body: Record<string, string> = { message: msg };
+      if (agent) body.agent = agent;
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       setMessages((prev) => [
@@ -122,6 +132,17 @@ export function ChatWidget() {
                   className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted transition-colors"
                 >
                   {qa.label}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1">
+              {AGENT_BUTTONS.map((ab) => (
+                <button
+                  key={ab.agent}
+                  onClick={() => send(ab.label, ab.agent)}
+                  className="flex-1 rounded border border-brand/30 px-1 py-0.5 text-[10px] text-brand hover:bg-brand hover:text-white transition-colors"
+                >
+                  {ab.label}
                 </button>
               ))}
             </div>
