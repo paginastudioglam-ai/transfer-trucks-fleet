@@ -10,11 +10,7 @@ import {
   FileText,
   DollarSign,
   Wrench,
-  LogOut,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const links = [
@@ -28,14 +24,6 @@ const links = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
-  };
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-full w-60 flex-col border-r border-border bg-sidebar">
@@ -46,9 +34,7 @@ export function Sidebar() {
           className="h-7 w-auto"
         />
       </div>
-
       <Separator />
-
       <nav className="flex-1 space-y-1 px-3 py-4">
         {links.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
@@ -69,18 +55,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="p-3">
-        <Separator className="mb-3" />
-        <Button
-          variant="ghost"
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-4 w-4" />
-          Cerrar sesión
-        </Button>
-      </div>
     </aside>
   );
 }
