@@ -58,6 +58,10 @@ config = (
     "        proxy_set_header Host $host;\n"
     "        proxy_set_header X-Real-IP $remote_addr;\n"
     "        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n"
+    "        # Prevent browser caching stale state after server restarts\n"
+    "        add_header Cache-Control \"no-cache, must-revalidate\" always;\n"
+    "        add_header Pragma \"no-cache\" always;\n"
+    "        expires -1;\n"
     "    }\n"
     "}\n"
 )
