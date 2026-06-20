@@ -1,5 +1,5 @@
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://212.227.251.228/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://212.227.251.228:8000/api";
 
 export interface TruckStats {
   available: number;
